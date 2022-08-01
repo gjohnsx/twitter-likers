@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import axios from 'axios';
 import { PhotographIcon } from "@heroicons/react/outline";
 import Divider from "./Divider";
 import TweetStats from "./TweetStats";
@@ -38,6 +38,29 @@ export default function FormSection() {
         setDataType(prevDataType => e.target.value);
     };
 
+    const callTwitterApi = () => {
+      console.log('\nCalling twitter api...\n');
+      // const url = 'https://jsonplaceholder.typicode.com/users/'
+      // const url = 'https://api.twitter.com/2/tweets'
+      const url = `https://api.twitter.com/2/tweets/${tweetId}/liking_users`
+
+      // const id = 3
+      const id = tweetId
+      console.log('id =', id)
+
+      axios.get(url, {
+        params: {
+          // id: id
+        }
+      }, {
+        headers: {
+          "Authorization": `Bearer ${process.env.BEARER_TOKEN}`
+        }
+      })
+        .then(res => console.log(res))
+        .catch(e => console.log(e));
+    };
+
     const getTweetData = async (event) => {
         event.preventDefault();
         console.log('Getting tweet preview!');
@@ -46,22 +69,8 @@ export default function FormSection() {
 
         if (isValidForm) {
             console.log('form is valid!!! making API call now...');
-
-            const url = `https://api.twitter.com/2/tweets/${tweetId}`
-            console.log('url =', url);
-            const token = process.env.BEARER_TOKEN
-            const requestData = {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            };
-            
-            const tweet = await axios
-                .get(url, requestData)
-                .then(response => {
-                    setTweet(response.data);
-            });
-
+            const endpointURL = `https://api.twitter.com/2/tweets/${tweetId}/liking_users`;
+            callTwitterApi();
         } else {
             console.log('form is NOT VALID!!! ');
         }
@@ -92,8 +101,6 @@ export default function FormSection() {
         console.log("Errors:", errors);
         return isValid;
     };
-
-    console.log('tweet =', tweet);
 
     return (
       <> 
