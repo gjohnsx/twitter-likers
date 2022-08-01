@@ -1,25 +1,27 @@
+import {
+  BrowserRouter as Router,
+  Routes, Route
+} from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Header from "./components/Header";
-import FormSection from "./components/FormSection";
+import Dashboard from "./components/Dashboard";
+import Users from "./components/Users";
 
 export default function App() {
   return (
-    <>
+    <Router>
       <div className="min-h-full">
         <Navbar />
-        <Header />
              
         <main>
-          <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-            <div className="px-4 py-4 sm:px-0">
-            {/* Replace with your content */}
-            <FormSection />
-
-            {/* /End replace */}
-            </div>
-          </div>
+          <Routes>
+            <Route path="/users" element={<Users />} />
+            <Route path="/" element={<Dashboard />} />
+          </Routes>
         </main>
       </div>
-    </>
+
+
+    </Router>
   )
 }

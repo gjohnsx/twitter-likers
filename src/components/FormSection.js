@@ -46,6 +46,7 @@ export default function FormSection() {
 
         if (isValidForm) {
             console.log('form is valid!!! making API call now...');
+
             const url = `https://api.twitter.com/2/tweets/${tweetId}`
             console.log('url =', url);
             const token = process.env.BEARER_TOKEN
@@ -59,7 +60,7 @@ export default function FormSection() {
                 .get(url, requestData)
                 .then(response => {
                     setTweet(response.data);
-                });
+            });
 
         } else {
             console.log('form is NOT VALID!!! ');
