@@ -21,19 +21,15 @@ const useField = (type) => {
 
 export default function FormSection() {
     const [tweet, setTweet] = useState({});
-    const [tweetUrl, setTweetUrl] = useState('');
     const [dataType, setDataType] = useState('Likers');
     const [preview, setPreview] = useState(<PhotographIcon className="mx-auto h-12 w-12 text-gray-400" />);
     const [errors, setErrors] = useState({});
     const [tweetId, setTweetId] = useState(null);
+    const tweetUrl = useField('text');
     const likers = useField('number');
     const retweeters = useField('number');
     const replies = useField('number');
     
-    const handleChange = (e) => {
-        setTweetUrl(prevTweet => e.target.value);
-    };
-
     const handleDataTypeChange = (e) => {
         setDataType(prevDataType => e.target.value);
     };
@@ -69,19 +65,18 @@ export default function FormSection() {
 
         if (isValidForm) {
             console.log('form is valid!!! making API call now...');
-            const endpointURL = `https://api.twitter.com/2/tweets/${tweetId}/liking_users`;
-            callTwitterApi();
+            // const endpointURL = `https://api.twitter.com/2/tweets/${tweetId}/liking_users`;
         } else {
             console.log('form is NOT VALID!!! ');
         }
     };
 
     const isValidTweet = (tweetUrl) => {
-        console.log('inside isValidTweet function:', tweetUrl, typeof tweetUrl);
         const regex = /\/[\d]{19}$/;
         const matches = tweetUrl.match(regex);
         if (matches) {
             const id = matches[0].slice(1, matches[0].length);
+            console.log('tweet was valid, setting tweetId to', tweetId)
             setTweetId(id);
             return true;
         }
@@ -93,6 +88,7 @@ export default function FormSection() {
         let isValid = true;
     
         if (!isValidTweet(tweetUrl)) {
+            console.log('tweet was not valid, setting tweetId')
             tempErrors["tweet"] = true;
             isValid = false;
         }
@@ -101,6 +97,8 @@ export default function FormSection() {
         console.log("Errors:", errors);
         return isValid;
     };
+
+    console.log('tweet ID', tweetId);
 
     return (
       <> 
@@ -123,12 +121,10 @@ export default function FormSection() {
                                 Tweet
                             </label>
                             <input
-                                type="url"
-                                name="tweet"
-                                id="tweet"
+                                {...tweetUrl}
+                                name="tweetUrl"
+                                id="tweetUrl"
                                 placeholder="https://twitter.com/"
-                                value={tweetUrl}
-                                onChange={handleChange}
                                 className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                             />
                          </div>
