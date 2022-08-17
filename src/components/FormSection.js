@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from 'axios';
-import { PhotographIcon } from "@heroicons/react/outline";
+import { PhotographIcon, ExclamationCircleIcon, CheckCircleIcon } from "@heroicons/react/outline";
 import Divider from "./Divider";
-import TweetStats from "./TweetStats";
 
 const useField = (type) => {
     const [value, setValue] = useState('');
@@ -19,16 +18,34 @@ const useField = (type) => {
     };
 };
 
+const Success = () => {
+  return (
+    <div className="absolute inset-y-0 right-0 pr-3 pt-5 flex items-center pointer-events-none">
+      <CheckCircleIcon className="h-5 w-5 text-green-500" aria-hidden="true" />
+    </div>
+  );
+};
+
+const Failed = () => {
+  return (
+    <div className="absolute inset-y-0 right-0 pr-3 pt-5 flex items-center pointer-events-none">
+    <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
+    </div>
+  );
+};
+
 export default function FormSection() {
-    const [tweet, setTweet] = useState({});
+    // const likers = useField('number');
+    // const retweeters = useField('number');
+    // const replies = useField('number');
+    // const [tweet, setTweet] = useState({});
+    const [tweetValid, setTweetValid] = useState('');
+
     const [dataType, setDataType] = useState('Likers');
     const [preview, setPreview] = useState(<PhotographIcon className="mx-auto h-12 w-12 text-gray-400" />);
     const [errors, setErrors] = useState({});
     const [tweetId, setTweetId] = useState(null);
     const tweetUrl = useField('text');
-    const likers = useField('number');
-    const retweeters = useField('number');
-    const replies = useField('number');
     
     const handleDataTypeChange = (e) => {
         setDataType(prevDataType => e.target.value);
@@ -36,23 +53,17 @@ export default function FormSection() {
 
     const callTwitterApi = () => {
       console.log('\nCalling twitter api...\n');
-      // const url = 'https://jsonplaceholder.typicode.com/users/'
-      // const url = 'https://api.twitter.com/2/tweets'
-      const url = `https://api.twitter.com/2/tweets/${tweetId}/liking_users`
 
-      // const id = 3
-      const id = tweetId
-      console.log('id =', id)
+      const id = '1525536445628563458'
+      // const id = tweetId // TODO fix tweet ID update in time
+      
+      const url = `/api/tweet/${id}`
 
       axios.get(url, {
         params: {
           // id: id
         }
-      }, {
-        headers: {
-          "Authorization": `Bearer ${process.env.BEARER_TOKEN}`
-        }
-      })
+        })
         .then(res => console.log(res))
         .catch(e => console.log(e));
     };
@@ -66,29 +77,20 @@ export default function FormSection() {
         if (isValidForm) {
             console.log('form is valid!!! making API call now...');
             // const endpointURL = `https://api.twitter.com/2/tweets/${tweetId}/liking_users`;
+            callTwitterApi();
         } else {
             console.log('form is NOT VALID!!! ');
         }
     };
-
-    const isValidTweet = (tweetUrl) => {
-        const regex = /\/[\d]{19}$/;
-        const matches = tweetUrl.match(regex);
-        if (matches) {
-            const id = matches[0].slice(1, matches[0].length);
-            console.log('tweet was valid, setting tweetId to', tweetId)
-            setTweetId(id);
-            return true;
-        }
-        return false;
-    };
-
+    
     const handleValidation = () => {
         let tempErrors = {};
         let isValid = true;
+
+        console.log('inside handleVlidation. tweetUrl =', tweetUrl);
     
-        if (!isValidTweet(tweetUrl)) {
-            console.log('tweet was not valid, setting tweetId')
+        if (!isValidTweet(tweetUrl.value)) {
+            console.log('tweet was not valid');
             tempErrors["tweet"] = true;
             isValid = false;
         }
@@ -98,119 +100,97 @@ export default function FormSection() {
         return isValid;
     };
 
+    const isValidTweet = (id) => {
+        console.log('inside isValidTweet... id =', id);
+
+        const regex = /(\/[\d]{19})|(^\d{19}$)/;
+        const matches = id.match(regex);
+        if (matches) {
+            const id = matches[0].slice(1, matches[0].length);
+            console.log('tweet was valid, setting tweetId to', tweetId)
+            setTweetValid(<Success />);
+            setTweetId(id);
+            return true;
+        }
+        setTweetValid(<Failed />);
+        return false;
+    };
+
+    useEffect(() => {
+      console.log('tweet url changed.')
+    }, [tweetUrl]);
+
     console.log('tweet ID', tweetId);
 
     return (
       <> 
-        <div className="mt-10 sm:mt-0">
-          <div className="md:grid md:grid-cols-3 md:gap-6">
-            <div className="md:col-span-1">
-              <div className="px-4 sm:px-0">
-                <h3 className="text-lg font-medium leading-6 text-gray-900">Tweet information</h3>
-                <p className="mt-1 text-sm text-gray-600">Enter the tweet from which you'd like to request like or retweet data.</p>
-              </div>
-            </div>
-            
-            <div className="mt-5 md:mt-0 md:col-span-2">
-              <form onSubmit={getTweetData}>
-                <div className="shadow overflow-hidden sm:rounded-md">
-                  <div className="px-4 py-5 bg-white sm:p-6">
-                    <div className="grid grid-cols-6 gap-6">
-                         <div className="col-span-6 sm:col-span-8">
-                            <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">
-                                Tweet
-                            </label>
-                            <input
-                                {...tweetUrl}
-                                name="tweetUrl"
-                                id="tweetUrl"
-                                placeholder="https://twitter.com/"
-                                className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                            />
-                         </div>
-  
-                        <div className="col-span-6 sm:col-span-8">
-                            <label className="block text-sm font-medium text-gray-700">Tweet preview</label>
-                            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                                <div className="space-y-1 text-center">
+        <form onSubmit={getTweetData}>
+          <div className="shadow overflow-hidden sm:rounded-md">
+            <div className="px-4 py-5 bg-white sm:p-6">
 
-                                    {preview}
+              <div className="grid grid-cols-6 gap-6">
+                <div className="relative col-span-6 sm:col-span-8">
+                  <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">
+                      Tweet
+                  </label>
+                  <input
+                      {...tweetUrl}
+                      name="tweetUrl"
+                      id="tweetUrl"
+                      placeholder="https://twitter.com/"
+                      className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                  />
+                  
+                  { tweetValid }
 
-                                </div>
-                            </div>
+                </div>
+
+                <div className="col-span-6 sm:col-span-8">
+                    <label className="block text-sm font-medium text-gray-700">Tweet preview</label>
+                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                        <div className="space-y-1 text-center">
+
+                            {preview}
+
                         </div>
                     </div>
-                  </div>
-
-                  <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                    <button
-                      type="submit"
-                      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Get Tweet preview
-                    </button>
-                  </div>
                 </div>
-              </form>
-            </div>
-          </div>
-        </div>
-  
-        <Divider />
-  
-        <div className="mt-10 sm:mt-0">
-          <div className="md:grid md:grid-cols-3 md:gap-6">
-            <div className="md:col-span-1">
-              <div className="px-4 sm:px-0">
-                <h3 className="text-lg font-medium leading-6 text-gray-900">Request data</h3>
-                <p className="mt-1 text-sm text-gray-600">Decide which type of data you'd like to request.</p>
+
+                {/* <fieldset>
+                  <legend className="sr-only">Select data type</legend>
+                  <div className="mt-4 space-y-4">
+                    <div className="col-span-6 sm:col-span-3">
+                      <label htmlFor="likesOrRetweets" className="block text-sm font-medium text-gray-700">
+                          Data type
+                      </label>
+                      <select
+                          id="likesOrRetweets"
+                          name="likesOrRetweets"
+                          onChange={handleDataTypeChange}
+                          className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      >
+                          <option value='Likers'>Likers</option>
+                          <option value='Retweeters'>Retweeters</option>
+                      </select>
+                    </div>
+                  </div>
+                </fieldset> */}
               </div>
             </div>
 
-            <div className="mt-5 md:mt-0 md:col-span-2">
-
-              <form action="#" method="POST">
-                <div className="shadow overflow-hidden sm:rounded-md">
-                  <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
-
-                    <fieldset>
-                        <legend className="sr-only">Select data type</legend>
-                        <div className="mt-4 space-y-4">
-                            <div className="col-span-6 sm:col-span-3">
-                                <label htmlFor="likesOrRetweets" className="block text-sm font-medium text-gray-700">
-                                    Data type
-                                </label>
-                                <select
-                                    id="likesOrRetweets"
-                                    name="likesOrRetweets"
-                                    onChange={handleDataTypeChange}
-                                    className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                >
-                                    <option value='Likers'>Likers</option>
-                                    <option value='Retweeters'>Retweeters</option>
-                                </select>
-                            </div>
-                        </div>
-                    </fieldset>
-
-                    {/* <TweetStats likers={likers.value} retweeters={retweeters.value} replies={replies.value} /> */}
-                    <TweetStats likers={3431} retweeters={255} replies={36} />
-
-                  </div>
-
-                  <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                    <button
-                      type="submit"
-                      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Get {dataType}
-                    </button>
-                  </div>
-                </div>
-              </form>
+            <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
+              <button
+                type="submit"
+                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Get Tweet preview
+              </button>
             </div>
           </div>
-        </div>
+        </form>
+        
+
+
       </>
     );
 };  
