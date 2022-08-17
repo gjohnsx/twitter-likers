@@ -165,7 +165,7 @@ export default function FormSection({ tweetJson, setTweetJson, users, setUsers }
         })
         .catch(e => console.log(e));
       
-      // navigate('/users');
+      navigate('/users');
     };
 
     return (
@@ -212,7 +212,7 @@ export default function FormSection({ tweetJson, setTweetJson, users, setUsers }
         )}
 
 
-        {tweetJson && (
+        {tweetJson && !users && (
           <form onSubmit={getLikingUsers}>
             <div className="shadow overflow-hidden sm:rounded-md">
               

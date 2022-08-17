@@ -6,7 +6,7 @@ export default async function handler(request, response) {
   console.log(request.query.id)
 
   const likingUsers = await client.users.tweetsIdLikingUsers(request.query.id, {
-    "max_results": 5,
+    "max_results": 11,
     "user.fields": [
         "id",
         "name",
