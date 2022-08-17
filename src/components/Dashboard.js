@@ -1,13 +1,13 @@
 import Header from "./Header";
 import FormSection from "./FormSection";
 
-export default function Dashboard() {
+export default function Dashboard({ tweetJson, setTweetJson, users, setUsers }) {
     return (
         <>
             <Header heading='Dashboard' />
             <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div className="px-4 py-4 sm:px-0">
-                    <FormSection />
+                    <FormSection tweetJson={tweetJson} setTweetJson={setTweetJson} users={users} setUsers={setUsers} />
                 </div>
             </div>
         </>

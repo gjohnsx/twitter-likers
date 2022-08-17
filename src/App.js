@@ -326,29 +326,27 @@ const testUsers = {
 };
 
 export default function App() {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState(null);
+  const [tweetJson, setTweetJson] = useState(null);
 
   const exportUsers = () => {
       console.log('Preparing to export users...')
   };
 
-  useEffect(() => {
-      setUsers(prevUsers =>  testUsers.data.sort((a, b) => b.public_metrics.followers_count - a.public_metrics.followers_count))
-  }, [])
-
   return (
     <Router>
+
       <div className="min-h-full">
         <Navbar />
              
         <main>
           <Routes>
+            <Route path="/" element={<Dashboard tweetJson={tweetJson} setTweetJson={setTweetJson} users={users} setUsers={setUsers} />} />
             <Route path="/users" element={<Users users={users} setUsers={setUsers} />} />
-            <Route path="/" element={<Dashboard />} />
           </Routes>
         </main>
-      </div>
 
+      </div>
 
     </Router>
   );
