@@ -6,6 +6,7 @@ const PAGINATION_LENGTH = 5;
 
 export default function Users({ users, setUsers }) {
   console.log('inside Users component...', users);
+
   const [startingUserIndex, setStartingUserIndex] = useState(0);
   const [endingUserIndex, setEndingUserIndex] = useState(5);
 
@@ -13,18 +14,7 @@ export default function Users({ users, setUsers }) {
     ? 0
     : users.data.length
 
-  const exportUsers = () => {
-    console.log('Preparing to export users...')
-    console.log(users.data, typeof users.data);
-    return users.data.map(row =>
-      row
-      .map(String)  // convert every value to String
-      .map(v => v.replaceAll('"', '""'))  // escape double colons
-      .map(v => `"${v}"`)  // quote it
-      .join(',')  // comma-separated
-    ).join('\r\n');  // rows starting on new lines
-      
-  };
+
 
   const ShowingResultsRender = ({ totalUsers }) => {
     console.log('inside component... totalUsers =', totalUsers);
@@ -66,7 +56,52 @@ export default function Users({ users, setUsers }) {
     }
   }
 
-  console.log('total users =', totalUsers);
+  const exportUsers = () => {
+    createUsersCsv();
+  };
+
+  const createUsersCsv = () => {
+    const headers = ['username', 'name', 'link', 'followers', 'following', 'tweet_count', 'verified', 'protected', 'profile_img_url'];
+    const data = [
+      headers,
+    ];
+    users.data.forEach(user => {
+      data.push([
+        user.username,
+        user.name,
+        `https://twitter.com/${user.username}`,
+        user.public_metrics.followers_count,
+        user.public_metrics.following_count,
+        user.public_metrics.tweet_count,
+        user.verified,
+        user.protected, 
+        user.profile_image_url
+      ])
+    });
+
+    const csv = data.map(row =>
+      row
+        .map(String)  // convert every value to String
+        .map(v => v.replaceAll('"', '""'))  // escape double colons
+        .map(v => `"${v}"`)  // quote it
+        .join(',')  // comma-separated
+      )
+      .join('\r\n');  // rows starting on new lines
+
+    downloadBlob(csv, 'export.csv', 'text/csv;charset=utf-8;')
+  }
+
+  const downloadBlob = (content, filename, contentType) => {
+    // Create a blob
+    const blob = new Blob([content], { type: contentType });
+    const url = URL.createObjectURL(blob);
+
+    // Create a link to download it
+    const pom = document.createElement('a');
+    pom.href = url;
+    pom.setAttribute('download', filename);
+    pom.click();
+  }
 
   return (
     <>
@@ -80,21 +115,24 @@ export default function Users({ users, setUsers }) {
                     A list of all the users who interacted with the Tweet.
                     </p>
                 </div>
-                <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-                    <button
-                        type="button"
-                        className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
-                        onClick={exportUsers}
-                    >
-                        Export users
-                    </button>
-                    <button 
-                        className='py-2 px-4 border rounded bg-red-100 text-red-500 border-transparent shadow-sm hover:bg-red-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:w-auto ml-1'
-                        onClick={() => setUsers([])}
-                    >
-                        Reset users
-                    </button>
-                </div>
+                {users !== null && (
+                  <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+                      <button
+                          type="button"
+                          className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
+                          onClick={exportUsers}
+                      >
+                          Export users
+                      </button>
+                      <button 
+                          className='py-2 px-4 border rounded bg-red-100 text-red-500 border-transparent shadow-sm hover:bg-red-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:w-auto ml-1'
+                          onClick={() => setUsers(null)}
+                      >
+                          Reset users
+                      </button>
+                  </div>
+                )}
+
               </div>
               <div className="mt-8 flex flex-col">
 
@@ -199,22 +237,9 @@ export default function Users({ users, setUsers }) {
                           aria-label="Pagination"
                         >
                           <div className="hidden sm:block">
-
-                            {/* {users === null && (
-                              <p className="text-sm text-gray-700">
-                                Showing <span className="font-medium">0</span> results
-                              </p>
-                            )}
-
-                            {users && (
-                              <p className="text-sm text-gray-700">
-                                Showing <span className="font-medium">{startingUserIndex + 1}</span> to <span className="font-medium">{endingUserIndex}</span> of{' '}
-                                <span className="font-medium">{totalUsers}</span> results
-                              </p>
-                            )} */}
                             {<ShowingResultsRender totalUsers={totalUsers} />}
-
                           </div>
+
                           <div className="flex-1 flex justify-between sm:justify-end">
                             <button
                               className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
@@ -230,11 +255,18 @@ export default function Users({ users, setUsers }) {
                             </button>
                           </div>
                         </nav>
-
                     </div>
                   </div>
               </div>
             </div>
+
+            {/* Debug section */}
+            {/* <div className="my-4">
+              <pre>
+                {users !== null && JSON.stringify(users.data, null, 4)}
+              </pre>
+            </div> */}
+
         </div>
     </>
   );

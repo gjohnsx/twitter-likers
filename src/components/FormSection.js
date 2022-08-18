@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { PhotographIcon, ExclamationCircleIcon, CheckCircleIcon, HeartIcon, SwitchHorizontalIcon, ChatIcon } from "@heroicons/react/outline";
+import { ExclamationCircleIcon, CheckCircleIcon } from "@heroicons/react/outline";
+import TweetPreview from "./TweetPreview";
 
 const useField = (type) => {
     const [value, setValue] = useState('');
@@ -34,81 +35,13 @@ const Failed = () => {
   );
 };
 
-export default function FormSection({ tweetJson, setTweetJson, users, setUsers }) {
+export default function FormSection({ tweetJson, setTweetJson, users, setUsers, preview, setPreview }) {
     // const [dataType, setDataType] = useState('Likers');
-    // const [preview, setPreview] = useState(<PhotographIcon className="mx-auto h-12 w-12 text-gray-400" />);
     // const [errors, setErrors] = useState({});
     const [tweetValid, setTweetValid] = useState('');
     const tweetUrl = useField('text');
 
     let navigate = useNavigate();
-
-    const CreateTweetPreview = ({ tweet }) => {
-      const preview = {
-        text: tweet.data.text,
-        user: {
-          name: tweet.includes.users[0].name,
-          username: tweet.includes.users[0].username,
-          profileImageUrl: tweet.includes.users[0].profile_image_url
-        },
-        metrics: {
-          retweetCount: tweet.data.public_metrics.retweet_count,
-          quoteCount: tweet.data.public_metrics.quote_count,
-          replyCount: tweet.data.public_metrics.reply_count,
-          likeCount: tweet.data.public_metrics.like_count,
-        },
-      }
-      return (
-        <div className="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200">
-          <div className="px-4 py-5 sm:px-6 flex gap-2">
-            <img
-              className="inline-block h-14 w-14 rounded-full"
-              src={preview.user.profileImageUrl}
-              alt={`Twitter profile pic for user ${preview.user.username}.`}
-            />
-            <div>
-              <h3 className="font-bold text-lg">{preview.user.name}</h3>
-              <p className="text-gray-500">@{preview.user.username}</p>
-            </div>
-          </div>
-          
-          <div className="px-4 py-5 sm:p-6">
-            <p className="text-xl leading-relaxed">
-              {preview.text}
-            </p>
-          </div>
-          
-          <div className="px-4 py-4 sm:px-6 flex gap-10">
-            <div className="flex gap-1 text-gray-500">
-              <HeartIcon className="h-6 w-6 "/>
-              <span className="sr-only">Like count</span>
-              <span>{preview.metrics.likeCount}</span>
-            </div>
-            <div className="flex gap-1 text-gray-500">
-              <SwitchHorizontalIcon className="h-6 w-6 "/>
-              <span className="sr-only">Retweet count</span>
-              <span>{preview.metrics.retweetCount}</span>
-            </div>
-            <div className="flex gap-1 text-gray-500">
-              <ChatIcon className="h-6 w-6 "/>
-              <span className="sr-only">Reply count</span>
-              <span>{preview.metrics.replyCount}</span>
-            </div>
-            <div className="flex ml-auto gap-1 text-gray-500">
-              <a
-                href={`https://twitter.com/${tweetJson.includes.users[0].username}/status/${tweetJson.data.id}`}
-                target="_blank"
-                rel="noreferrer"
-                type="submit"
-                className="inline-flex justify-center py-2 px-4 border border-indigo-600 shadow-sm text-sm font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Open on Twitter
-              </a>
-            </div>
-          </div>
-        </div>
-      )
-    };
 
     const isValidTweetId = value => {
       console.log('inside isValidTweetId', value);
@@ -145,6 +78,11 @@ export default function FormSection({ tweetJson, setTweetJson, users, setUsers }
       axios.get(url)
         .then(res => {
           setTweetJson(res.data.tweetData);
+          setPreview(
+          <div className="my-4 shadow-lg max-w-3xl mx-auto">
+            <TweetPreview tweet={res.data.tweetData} />
+          </div>
+          );
         })
         .catch(e => console.log(e));
     };
@@ -190,6 +128,15 @@ export default function FormSection({ tweetJson, setTweetJson, users, setUsers }
                   {tweetValid}
 
                 </div>
+
+                <div className="col-span-6 sm:col-span-8">
+                  <label className="block text-sm font-medium text-gray-700">Tweet preview</label>
+                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 rounded-md">
+                      <div className="space-y-1 text-center">
+                        {preview}
+                      </div>
+                  </div>
+                </div>
               </div>
 
             </div>
@@ -205,18 +152,11 @@ export default function FormSection({ tweetJson, setTweetJson, users, setUsers }
           </div>
         </form>
         
-        {tweetJson && (
-          <div className="my-4 shadow-lg max-w-3xl mx-auto">
-            <CreateTweetPreview tweet={tweetJson} />
-          </div>
-        )}
-
-
         {tweetJson && !users && (
           <form onSubmit={getLikingUsers}>
             <div className="shadow overflow-hidden sm:rounded-md">
               
-              <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
+              <div className="px-4 py-3 bg-gray-50 text-center sm:px-6">
                 <button
                   type="submit"
                   className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
