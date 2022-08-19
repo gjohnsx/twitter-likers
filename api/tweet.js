@@ -5,20 +5,6 @@ export default async function handler(request, response) {
   // console.log(request)
   console.log('\n\n\n', request.params, '\n\n\n')
 
-  // const user = await client.users.findUsersById({
-  //   "ids": [
-  //       "1359869635668115467"
-  //   ],
-  //   "user.fields": [
-  //       "name",
-  //       "public_metrics"
-  //   ]
-  // });
-    
-  // return response.status(200).json({
-  //   user
-  // })
-
   const tweetData = await client.tweets.findTweetById("1525536445628563458", {
     "tweet.fields": [
         "created_at",
@@ -36,6 +22,5 @@ export default async function handler(request, response) {
 
   return response.status(200).json({
     tweetData
-  })
-
-}
+  });
+};
