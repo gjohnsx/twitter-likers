@@ -32,7 +32,7 @@ export default function TweetPreview({ tweet }) {
             </div>
             
             <div className="px-4 py-5 sm:p-6">
-                <p className="text-lg leading-relaxed prose">
+                <p className="text-lg leading-relaxed prose text-left">
                     {preview.text}
                 </p>
             </div>
