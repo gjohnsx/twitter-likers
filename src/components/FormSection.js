@@ -41,6 +41,7 @@ export default function FormSection({ tweetJson, setTweetJson, users, setUsers, 
     // const [errors, setErrors] = useState({});
     const [tweetValid, setTweetValid] = useState('');
     const tweetUrl = useField('text');
+    const [paginationToken, setPaginationToken] = useState(null);
 
     let navigate = useNavigate();
 
@@ -97,10 +98,15 @@ export default function FormSection({ tweetJson, setTweetJson, users, setUsers, 
       console.log('\nCalling twitter api...\n');
 
       const url = `/api/likingUsers/${tweetId}`
-
-      axios.get(url)
+      
+      axios.get(url, {
+        params: {
+          pagination_token: null
+        }
+      })
         .then(res => {
-          setUsers(res.data.likingUsers);
+          console.log('setting users isnt working. why?\n', res);
+          setUsers(res.data.likers);
         })
         .catch(e => console.log(e));
       

@@ -2,17 +2,17 @@ import { useEffect, useState } from "react";
 import { ArrowUpIcon, ArrowDownIcon } from "@heroicons/react/outline";
 import Header from "./Header";
 
-const PAGINATION_LENGTH = 5;
+const PAGINATION_LENGTH = 20;
 
 export default function Users({ users, setUsers }) {
   console.log('inside Users component...', users);
 
   const [startingUserIndex, setStartingUserIndex] = useState(0);
-  const [endingUserIndex, setEndingUserIndex] = useState(5);
+  const [endingUserIndex, setEndingUserIndex] = useState(PAGINATION_LENGTH);
 
   const totalUsers = users === null
     ? 0
-    : users.data.length
+    : users.length
 
 
 
@@ -65,7 +65,7 @@ export default function Users({ users, setUsers }) {
     const data = [
       headers,
     ];
-    users.data.forEach(user => {
+    users.forEach(user => {
       data.push([
         user.username,
         user.name,
@@ -185,7 +185,7 @@ export default function Users({ users, setUsers }) {
                             <tbody className="divide-y divide-gray-200 bg-white">
                               {users && (
                                 <>
-                                {users.data
+                                {users
                                   .sort((a, b) => b.public_metrics.followers_count - a.public_metrics.followers_count)
                                   .slice(startingUserIndex, endingUserIndex)
                                   .map((user) => (
@@ -261,11 +261,11 @@ export default function Users({ users, setUsers }) {
             </div>
 
             {/* Debug section */}
-            {/* <div className="my-4">
+            <div className="my-4">
               <pre>
-                {users !== null && JSON.stringify(users.data, null, 4)}
+                {users !== null && JSON.stringify(users, null, 4)}
               </pre>
-            </div> */}
+            </div>
 
         </div>
     </>
