@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ExclamationCircleIcon, CheckCircleIcon } from "@heroicons/react/outline";
 import TweetPreview from "./TweetPreview";
+import { PhotographIcon } from "@heroicons/react/outline";
 
 const useField = (type) => {
     const [value, setValue] = useState('');
@@ -108,7 +109,7 @@ export default function FormSection({ tweetJson, setTweetJson, users, setUsers, 
 
     return (
       <> 
-        <form onSubmit={getTweetData}>
+        <form>
           <div className="shadow overflow-hidden sm:rounded-md">
             <div className="px-4 py-5 bg-white sm:p-6">
 
@@ -142,12 +143,23 @@ export default function FormSection({ tweetJson, setTweetJson, users, setUsers, 
             </div>
 
             <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
-              <button
-                type="submit"
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Get Tweet Preview
-              </button>
+              {!tweetJson && (
+                <button
+                  onClick={getTweetData}
+                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Get Tweet Preview
+                </button>
+              )}
+
+              {tweetJson && (
+                <button
+                  className='py-2 px-4 border rounded bg-red-100 text-red-500 border-transparent shadow-sm hover:bg-red-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:w-auto ml-1'
+                  onClick={() => setPreview(<PhotographIcon className="mx-auto h-12 w-12 text-gray-400" />)}
+                  >
+                  Clear Tweet Preview
+                </button>
+              )}
             </div>
           </div>
         </form>
