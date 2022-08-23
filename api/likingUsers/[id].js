@@ -11,7 +11,6 @@ export default async function handler(request, response) {
   try {
     async function getLikers(paginationToken = null) {
       const likingUsers = await client.users.tweetsIdLikingUsers(request.query.id, {
-        "max_results": 5,
         "user.fields": [
           "id",
           "name",
@@ -26,12 +25,11 @@ export default async function handler(request, response) {
 
       if (likingUsers.data) {
         // fill the list of users with the users
-        console.log('made it into getLikers...')
         // TODO - Remove testing limit
-        if (likers.length > 10) {
-          console.log('Reached my testing limit of 125 users in API call!\n');
-          return likingUsers;
-        }
+        // if (likers.length > 10) {
+        //   console.log('Reached my testing limit of >10 users in API call!\n');
+        //   return likingUsers;
+        // }
 
         likingUsers.data.forEach(user => likers.push(user));
         console.log('added', likingUsers.data.length, 'to likers array\nlikers = ', likers);

@@ -1,20 +1,17 @@
-import { useEffect, useState } from "react";
-import { ArrowUpIcon, ArrowDownIcon } from "@heroicons/react/outline";
+import { Fragment, useEffect, useState } from "react";
+import { ArrowUpIcon, ArrowDownIcon, CheckIcon, ExclamationCircleIcon, CheckCircleIcon } from "@heroicons/react/outline";
+import { Dialog, Transition } from '@headlessui/react'
 import Header from "./Header";
 
-const PAGINATION_LENGTH = 20;
+const PAGINATION_LENGTH = 50;
 
-export default function Users({ users, setUsers }) {
-  console.log('inside Users component...', users);
-
+export default function Users({ users, setUsers, tweetJson, open, setOpen, modalContent, setModalContent }) {
   const [startingUserIndex, setStartingUserIndex] = useState(0);
   const [endingUserIndex, setEndingUserIndex] = useState(PAGINATION_LENGTH);
 
   const totalUsers = users === null
     ? 0
     : users.length
-
-
 
   const ShowingResultsRender = ({ totalUsers }) => {
     console.log('inside component... totalUsers =', totalUsers);
@@ -39,22 +36,21 @@ export default function Users({ users, setUsers }) {
         </p>
       )
     }
-  }
+  };
 
   const getNextPagination = () => {
     if (startingUserIndex + PAGINATION_LENGTH <= totalUsers) {
       setStartingUserIndex(prevStartingUserIndex => prevStartingUserIndex + PAGINATION_LENGTH)
       setEndingUserIndex(prevEndingUserIndex => prevEndingUserIndex + PAGINATION_LENGTH)
-      // setEndingUserIndex(prevEndingUserIndex => Math.min(prevEndingUserIndex + PAGINATION_LENGTH, totalUsers))
     }
-  }
+  };
   
   const getPreviousPagination = () => {
     if (startingUserIndex - PAGINATION_LENGTH >= 0) {
       setStartingUserIndex(prevStartingUserIndex => prevStartingUserIndex - PAGINATION_LENGTH)
       setEndingUserIndex(prevEndingUserIndex => prevEndingUserIndex - PAGINATION_LENGTH)
     }
-  }
+  };
 
   const exportUsers = () => {
     createUsersCsv();
@@ -89,7 +85,7 @@ export default function Users({ users, setUsers }) {
       .join('\r\n');  // rows starting on new lines
 
     downloadBlob(csv, 'export.csv', 'text/csv;charset=utf-8;')
-  }
+  };
 
   const downloadBlob = (content, filename, contentType) => {
     // Create a blob
@@ -101,11 +97,93 @@ export default function Users({ users, setUsers }) {
     pom.href = url;
     pom.setAttribute('download', filename);
     pom.click();
-  }
+  };
+
+  useEffect(() => {
+    if (tweetJson === null) {
+      setModalContent({
+        icon: <ExclamationCircleIcon className='h-6 w-6 text-red-400' />,
+        text: `No users found...`,
+        description: 'How did you even get this to open?',
+      })
+    } else if (users) {
+      setModalContent({
+        icon: <CheckCircleIcon className='h-6 w-6 text-green-500' />,
+        text: `Complete!`,
+        description: 'You may now export your users as a CSV.',
+      })
+    }
+  }, [users]);
 
   return (
     <>
+      <Transition.Root show={open} as={Fragment}>
+      <Dialog as="div" className="relative z-10" onClose={setOpen}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+        </Transition.Child>
+
+        <div className="fixed z-10 inset-0 overflow-y-auto">
+          <div className="flex items-end sm:items-center justify-center min-h-full p-4 text-center sm:p-0">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              enterTo="opacity-100 translate-y-0 sm:scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            >
+              <Dialog.Panel className="relative bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-sm sm:w-full sm:p-6">
+                <div>
+                  <div className="mx-auto flex items-center justify-center">
+                    {modalContent.icon}
+                  </div>
+                  <div className="mt-3 text-center sm:mt-5">
+                    <Dialog.Title as="h3" className="text-lg leading-6 font-medium text-gray-900">
+                      {modalContent.text}
+                    </Dialog.Title>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        {modalContent.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-5 sm:mt-6">
+                  <button
+                    type="button"
+                    className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+                    onClick={() => setOpen(false)}
+                  >
+                    Go back to dashboard
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition.Root>
+
         <Header heading='Users' />
+
+        <button 
+          className="border rounded-md bg-orange-500 text-white px-4 py-2 my-2 hover:bg-orange-600"
+          onClick={() => {
+            setOpen(true);
+          }}
+        >
+          Toggle Modal
+        </button>
 
         <div className="px-4 sm:px-6 lg:px-8 py-6">
             <div className="sm:flex sm:items-center">
@@ -261,11 +339,11 @@ export default function Users({ users, setUsers }) {
             </div>
 
             {/* Debug section */}
-            <div className="my-4">
+            {/* <div className="my-4">
               <pre>
                 {users !== null && JSON.stringify(users, null, 4)}
               </pre>
-            </div>
+            </div> */}
 
         </div>
     </>
