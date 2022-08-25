@@ -330,6 +330,8 @@ export default function App() {
   const [users, setUsers] = useState(null);
   const [tweetJson, setTweetJson] = useState(null);
   const [preview, setPreview] = useState(<PhotographIcon className="mx-auto h-12 w-12 text-gray-400" />);
+  const [open, setOpen] = useState(true);
+  const [modalContent, setModalContent] = useState({});
 
   const exportUsers = () => {
       console.log('Preparing to export users...')
@@ -343,8 +345,31 @@ export default function App() {
              
         <main>
           <Routes>
-            <Route path="/" element={<Dashboard tweetJson={tweetJson} setTweetJson={setTweetJson} users={users} setUsers={setUsers} preview={preview} setPreview={setPreview} />} />
-            <Route path="/users" element={<Users users={users} setUsers={setUsers} />} />
+            <Route path="/" element={
+              <Dashboard 
+                tweetJson={tweetJson}
+                setTweetJson={setTweetJson}
+                users={users}
+                setUsers={setUsers}
+                preview={preview}
+                setPreview={setPreview}
+                open={open}
+                setOpen={setOpen}
+                modalContent={modalContent}
+                setModalContent={setModalContent}
+              />}
+            />
+            <Route path="/users" element={
+              <Users 
+                users={users} 
+                setUsers={setUsers} 
+                tweetJson={tweetJson} 
+                open={open}
+                setOpen={setOpen}
+                modalContent={modalContent}
+                setModalContent={setModalContent}
+              />} 
+            />
           </Routes>
         </main>
 
