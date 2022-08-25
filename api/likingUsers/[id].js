@@ -49,31 +49,12 @@ export default async function handler(request, response) {
       }
     };
     
-    // const likingUsers = await client.users.tweetsIdLikingUsers(request.query.id, {
-    //   "max_results": 5,
-    //   "user.fields": [
-    //     "id",
-    //     "name",
-    //       "profile_image_url",
-    //       "protected",
-    //       "public_metrics",
-    //       "username",
-    //       "verified"
-    //     ],
-    //   "pagination_token": null
-    //   });
-
     const likingUsers = await getLikers();
 
-    // console.log(response.likingUsers);
     console.dir(likingUsers, {
       depth: null,
     });
 
-
-    // return response.status(200).json({
-    //   likingUsers
-    // });
     return response.status(200).json({
       likers
     });

@@ -190,7 +190,7 @@ export default function Users({ users, setUsers, tweetJson, open, setOpen, modal
                 <div className="sm:flex-auto">
                     <h1 className="text-xl font-semibold text-gray-900">Users</h1>
                     <p className="mt-2 text-sm text-gray-700">
-                    A list of all the users who interacted with the Tweet.
+                      A list of all the users who interacted with the Tweet.
                     </p>
                 </div>
                 {users !== null && (
